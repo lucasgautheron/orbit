@@ -1,0 +1,352 @@
+<html>
+<head>
+<title>Aide</title>
+<style type="text/css">
+html { font: 95% "Trebuchet MS", sans-serif; padding: 5px; }
+p { text-align: justify; }
+img.mid { vertical-align: middle; }
+
+table#datas { font-size: 12px; width: 650px; border: 2px solid black; border-collapse: collapse; }
+table#datas td { padding: 5px; border: 1px solid black; vertical-align: top; }
+
+table#keys { font-size: 12px; width: 650px; border: 2px solid black; border-collapse: collapse; }
+table#keys td { padding: 5px; border: 1px solid black; }
+table#keys td.left { width: 90px; font-weight: bold; }
+table#keys td.right { width: 523px; }
+
+ul#menu
+{
+    list-style-type: upper-roman;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Aide</h1>
+<h2>Sommaire</h2>
+<ul id="menu">
+    <li><a href="#fonctions">Fonctionnement</a></li>
+    <li><a href="#clavier">Commandes clavier</a></li>
+    <li><a href="#planets">Fichiers "planètes"</a></li>
+</ul>
+
+<a name="fonctions"></a>
+<h2>I. Fonctionnement</h2>
+<p>L'objectif du programme est de simuler les mouvements planétaires au seins du système solaire. A partir de conditions initiales configurables, le logiciel calcule par approximations les positions successives de chaque planète en appliquant le principe fondamental de la dynamique. <br />
+La précision de ces calculs est limitée : pour fonctionner le programme doit considérer que l'accélération comme la vitesse sont constants durant de courts intervalles de temps &Delta;t (périodes de calcul). Ces périodes de calcul augmentent avec la vitesse de simulation, provoquant une baisse de précision. </p>
+
+<h3>Lancement du programme</h3>
+<p>Le lancement du programme se fait soit en ouvrant bin/phys.exe (qui chargera les conditions initiales par défaut), soit en ouvrant :</p>
+<ul>
+    <li>systeme_solaire.bat (étude du système solaire complet, dont la Lune)</li>
+    <li>jupiter.bat (étude de Jupiter et quelques unes de ses lunes)</li>
+    <li>saturne.bat (étude de Saturne et quelques unes de ses lunes)</li>
+    <li>cometes.bat (étude des comètes de Halley et Encke ainsi que )</li>
+</ul>
+
+<h3>Données</h3>
+<p>Le programme calcule et renseigne "à la volée" pour chaque planète les informations suivantes (<i>dans le référentiel choisi</i>)</p>
+<table id="datas">
+<tr class="head">
+    <td>Nom</td>
+    <td>Donnée</td>
+    <td>Formule</td>
+</tr>
+
+<tr>
+    <td>Masse</td>
+    <td>Masse de la planète (en kg)</td>
+    <td>(Donnée)</td>
+</tr>
+
+<tr>
+    <td>Distance</td>
+    <td>Distance avec l'origine du référentiel d'étude (en km)</td>
+    <td><img src="pck/latex/distance.gif" /></td>
+</tr>
+
+<tr>
+    <td>Vitesse</td>
+    <td>Vitesse (en km/s)</td>
+    <td><img src="pck/latex/vitesse.gif" /></td>
+</tr>
+
+<tr>
+    <td>Accel</td>
+    <td>Accélération (en mm/s<sup>2</sup>)</td>
+    <td><img src="pck/latex/acceleration.gif" /></td>
+</tr>
+
+<tr>
+    <td>Aph</td>
+    <td>Aphélie (distance maximale avec le référentiel)</td>
+    <td><img src="pck/latex/aph.gif" /></td>
+</tr>
+
+<tr>
+    <td>Peri</td>
+    <td>Aphélie (distance minimale avec le référentiel)</td>
+    <td><img src="pck/latex/per.gif" /></td>
+</tr>
+
+<tr>
+    <td>Exc</td>
+    <td>Excentricité de l'orbite</td>
+    <td><img src="pck/latex/exc.gif" /></td>
+</tr>
+
+<tr>
+    <td>Per</td>
+    <td>Période orbitale en années et jours terrestres</td>
+    <td></td>
+</tr>
+
+<!--
+\\
+\\
+\alpha = \cos^{-1}\frac{(\Delta \vec{r_{pl}} \times \Delta \vec{r_{pl}'}) . (\Delta \vec{r_{ref}} \times \Delta \vec{r_{ref}'})}{\left \| (\Delta \vec{r_{pl}} \times \Delta \vec{r_{pl}'}) . (\Delta \vec{r_{ref}} \times \Delta \vec{r_{ref}'}) \right \|}
+\\
+\\
+\Delta \vec{r_{pl}} = \vec{r_{pl}}(t+\Delta t) - \vec{r_{pl}}(t)
+\\
+\Delta \vec{r_{pl}}' = \vec{r_{pl}}(t) - \vec{r_{pl}}(t-\Delta t)
+\\
+\Delta \vec{r_{ref}} = \vec{r_{ref}}(t+\Delta t) - \vec{r_{ref}}(t)
+\\
+\Delta \vec{r_{ref}}' = \vec{r_{ref}}(t) - \vec{r_{ref}}(t-\Delta t)
+-->
+
+<tr>
+    <td>Angle</td>
+    <td>Angle entre le plan du mouvement de la planète et de celui du référentiel (au sein du référentiel absolu).<br /><br />(Dans la formule ci-contre est utilisée la notation anglophone du produit vectoriel)</td>
+    <td><img src="pck/latex/angle.gif" /></td>
+</tr>
+
+<tr>
+    <td>Aire<sup>1</sup></td>
+    <td>Aire balayée par la planète (en km/j)</td>
+    <td><img src="pck/latex/aire.gif" /></td>
+</tr>
+
+<tr>
+    <td>Moment cin.<sup>1</sup></td>
+    <td>Moment cinétique (en kg.m²/s)</td>
+    <td><img src="pck/latex/moment.gif" /></td>
+</tr>
+
+<tr>
+    <td>Dist.moy</td>
+    <td>Distance moyenne avec le référentiel (en km), en considérant la trajectoire elliptique.</td>
+    <td><img src="pck/latex/rmoy.gif" /></td>
+</tr>
+
+<tr>
+    <td>Per(th)</td>
+    <td>Période théorique de l'orbite, dans l'hypothèse d'un moment cinétique constant.</td>
+    <td><img src="pck/latex/perth.gif" /></td>
+</tr>
+</table>
+<p>
+Les données suivies d'un "(?)" sont celles que le programme n'a pas fini de calculer ou qu'il n'a pas pu déterminer avec certitude. C'est le cas lorsque la planète étudiée n'a pas encore fait une orbite complète autour du soleil.<br /><br />
+Il est important de noter que ces valeurs n'ont de sens que si la planète étudié est effectivement en orbite autour de la planète choisie en référentiel. Le programme ne pouvant pas s'assurer avec certitude que ce soit le cas, l'utilisateur doit lui même vérifier que le mouvement dans le référentiel d'étude est bien orbital (ce qui est évident lorsque l'on observe la trajectoire)
+</p>
+
+<h3>Trajectoires</h3>
+<p>En plus des données chiffrées instantanées, le logiciel affiche les planètes du système solaire ainsi que leur trajectoire. Il peut également tracer les vecteurs des accélérations subies par chaque planète dans le référentiel sélectionné.</p>
+
+<h3>Référentiels d'étude</h3>
+<p>Le programme utilise, pour tous ses calculs, un "référentiel absolu". En revanche, l'affichage des trajectoires ou encore des informations diverses telles que la vitesse se fait dans le référentiel des planètes configurées (vous pouvez changer le référentiel à tout moment) mais pas dans le référentiel absolu (ce qui n'aurait pas beaucoup de sens).</p>
+
+<h3>Calculs des trajectoires</h3>
+
+<p>Le programme calcule les trajectoires à partir des conditions initialies en appliquant le PFD avec la méthode d'Euler. La première étape consiste à calculer l'accélération subie par chaque planète par l'effet gravitationnel provoqué par l'ensemble des autres astres, à l'instant t :</p>
+<p><img src="pck/latex/pfd.gif" class="mid" />, où <img src="pck/latex/unitaire.gif" class="mid" /></p>
+<p>Puis le programme calcule la vitesse de l'astre à l'instant suivant (t+&Delta;t), en considérant l'accélération constante durant le court intervalle de temps &Delta;t (première approximation) :</p>
+<p><img src="pck/latex/euler_v.gif" /></p>
+<p>Une fois toutes les vitesses calculées le programme met à jour les vecteurs positions en réalisant la seconde approximation :</p>
+<p><img src="pck/latex/euler_p.gif" /></p>
+
+<h3>Syzygies</h3>
+
+<p>Le programme tente de détecter les situations de syzygie lors de la simulation, c'est-à-dire les transits astronomiques, éclipses, etc. qui pourraient avoir lieu entre la planète étudiée, le référentiel et toutes les autres planètes. Un message apparait lorsque qu'une telle situation est détectée et reste affiché pendant 1,5 seconde. Ces évènements sont conservés en mémoire et apparaissent dans le fichier XML en cas d'export.</p>
+<p>La condition permettant de détecter une telle situation est :</p>
+<!--
+Old :
+\frac{\left \| (\vec{p_{ob}}-\vec{p_{pl}}) \times \frac{\vec{p_{ref}}-\vec{p_{pl}}}{\left \| \vec{p_{ref}}-\vec{p_{pl}} \right \|} \right \|}{\left \| \frac{\vec{p_{ref}}-\vec{p_{pl}}}{\left \| \vec{p_{ref}}-\vec{p_{pl}} \right \|} \right \|}-r_{ob} \geq r_{pl}+(r_{ref}-r_{pl}) \frac{\sqrt{\left \| \vec{p_{ob}}-\vec{p_{pl}} \right \|^2 - \frac{\left \| (\vec{p_{ob}}-\vec{p_{pl}}) \times \frac{\vec{p_{ref}}-\vec{p_{pl}}}{\left \| \vec{p_{ref}}-\vec{p_{pl}} \right \|} \right \|^2}{\left \| \vec{u} \right \|^2}}}{\left \| \vec{p_{ref}}-\vec{p_{pl}} \right \|}
+
+\\
+\hat{r_{pl/ref}} = \frac{\vec{p_{ref}}-\vec{p_{pl}}}{\left \| \vec{p_{ref}}-\vec{p_{pl}} \right \|}
+\\
+\\
+\frac{\left \| (\vec{p_{ob}}-\vec{p_{pl}}) \times \hat{r_{pl/ref}} \right \|}{\left \| \hat{r_{pl/ref}} \right \|}
+-
+r_{ob} \frac{\left \| \vec{p_{ob}}-\vec{p_{pl}} \right \|}{\sqrt{(\vec{p_{ob}}-\vec{p_{pl}})^2+(r_{ob}-r_{pl})^2}}
+\geq
+r_{pl}+(r_{ref}-r_{pl}) \frac{\sqrt{\left \| \vec{p_{ob}}-\vec{p_{pl}} \right \|^2 - \frac{\left \| (\vec{p_{ob}}-\vec{p_{pl}}) \times \hat{r_{pl/ref}} \right \|^2}{\left \| \hat{r_{pl/ref}} \right \|^2}}}{\left \| \vec{p_{ref}}-\vec{p_{pl}} \right \|}
+-->
+<p><img src="pck/latex/syzygie.gif" /><br /><br /> (approximation)</p>
+
+
+<a name="clavier"></a>
+<h2>II. Commandes</h2>
+
+<p>L'intégralité des commandes peut se faire au clavier. Quelques unes sont néanmoins accessibles par des boutons.</p>
+
+<table id="keys">
+<tr class="head">
+    <td class="left">Touche</td>
+    <td class="right">Action associée</td>
+</tr>
+
+<tr>
+    <td class="left">S</td>
+    <td class="right">Lancer la simulation.</td>
+</tr>
+
+<tr>
+    <td class="left">P</td>
+    <td class="right">Mettre en pause la simulation.</td>
+</tr>
+
+<tr>
+    <td class="left">Entrée</td>
+    <td class="right">Changer la planète étudiée (celle dont les caractéristiques sont affichées en haut à droite).</td>
+</tr>
+
+<tr>
+    <td class="left">Flèches</td>
+    <td class="right">Effectuer des rotations de la vue.</td>
+</tr>
+
+<tr>
+    <td class="left">1</td>
+    <td class="right">Changer référentiel (précédent).</td>
+</tr>
+
+<tr>
+    <td class="left">2</td>
+    <td class="right">Changer référentiel (suivant).</td>
+</tr>
+
+<tr>
+    <td class="left">A</td>
+    <td class="right">Afficher/Cacher les vecteurs accélération.</td>
+</tr>
+
+<tr>
+    <td class="left">T</td>
+    <td class="right">Afficher/Cacher la trajectoire de la planète courante.</td>
+</tr>
+
+<tr>
+    <td class="left">0 (zéro)</td>
+    <td class="right">Afficher/Cacher la trajectoire des anciennes orbites.</td>
+</tr>
+
+<tr>
+    <td class="left">4</td>
+    <td class="right">Doubler la vitesse de simulation.</td>
+</tr>
+
+<tr>
+    <td class="left">5</td>
+    <td class="right">Diviser par deux la vitesse de simulation.</td>
+</tr>
+
+<tr>
+    <td class="left">7</td>
+    <td class="right">Améliorer la précision de 10%</td>
+</tr>
+
+<tr>
+    <td class="left">8</td>
+    <td class="right">Diminuer la précision de 10%</td>
+</tr>
+
+<tr>
+    <td class="left">F1</td>
+    <td class="righ">Mémoriser davantage de positions (+20 %)</td>
+</tr>
+
+<tr>
+    <td class="left">F2</td>
+    <td class="righ">Mémoriser moins de positions (-20 %)</td>
+</tr>
+
+<tr>
+    <td class="left">F3</td>
+    <td class="righ">Afficher l'aire couverte par la planète étudiée par rapport au référentiel (en km²/j)</td>
+</tr>
+
+<tr>
+    <td class="left">O (lettre)</td>
+    <td class="right">Enregistrer la position courante des planètes dans un fichier texte. Dossier de destination : "positions". NB : il est préférable de mettre la simulation en pause avant l'enregistrement.</td>
+</tr>
+
+<tr>
+    <td class="left">F4 (lettre)</td>
+    <td class="right">Enregistrer la position courante des planètes ainsi que quelques unes de leurs caractéristiques dans un fichier XML. Dossier de destination : "positions". NB : il est préférable de mettre la simulation en pause avant l'enregistrement.</td>
+</tr>
+
+<tr>
+    <td class="left">F12</td>
+
+    <td class="right">Enregistrer une capture d'écran au format BMP. Dossier de destination : "images".</td>
+</tr>
+</table>
+
+<a name="planets"></a>
+<h2>III. Fichiers "planètes"</h2>
+
+<h3>Principes de base</h3>
+<p>Lors de son ouverture, le programme tente d'ouvrir le fichier "planets.txt" du dossier "bin" (où se trouve l'exécutable). Ce fichier contient les informations nécessaires au fonctionnement de la simulation : masse et position des planètes, ainsi que leur vitesse instantanée initiale, et d'autres informations relatives à leur affichage (nom, couleur).
+
+</p>
+
+<h3>Format d'un fichier "planètes"</h3>
+<p>Le format d'un tel fichier est strict et doit être respecté impérativement. Le voici :</p>
+<pre>
+# jj/mm/aaaa hh:mm:ss
+NomPlanete1 masse rayon position_x position_y position_z vitesse_x vitesse_y vitesse_z rouge vert bleu
+NomPlanete2 masse rayon position_x position_y position_z vitesse_x vitesse_y vitesse_z rouge vert bleu
+etc..
+</pre>
+<p><b>NB : </b> le rayon, dans la version actuelle du programme, n'est utilisé que pour détecter d'éventuelles collisions. Il n'est donc pas nécessaire de préciser sa valeur exacte. Cependant il est indispensable de fournir une valeur dans le fichier planètes (pour respecter le format). Il est recommandé d'utiliser "0" comme valeur dans ce cas.</p>
+<p>Les positions sont exprimées en unités astronomiques. Les vitesses sont exprimées en unités astronomiques par jour. L'unité de la masse doit être le kg. Les "composantes" rouge, vert et bleu des couleurs représentatives de chaque planète doivent être un nombre compris entre 0 et 255.
+Exemple :</p>
+<pre>
+# 02/03/2012 23:00:00
+Soleil 1.9891e30 0.00930494526 0 0 0 0 0 0 255 255 0 0
+Mercure 3.302e23 1.63083872e-5 0.0430539113994 0.2705402097897 0.1400537055981 -0.0334988994278 0.0031881496948 0.0051761918131 240 240 100
+Venus 4.8685e24 4.04537843e-5 -0.1515314552327 0.6373909900284 0.2963681263263 -0.0198399237191 -0.0044456307006 -0.0007447356439 100 0 0
+Lune 7.3477e22 1.16138016e-5 -0.9461696749698 0.2743783605460 0.1188462210257 -0.0059860582285 -0.0151717439505 -0.0066252890706 200 200 200
+Terre 5.9736e24 4.26352124e-5 -0.9459911362602 0.2719353384658 0.1178923523387 -0.0054172422096 -0.0151215922821 -0.0065548855384 10 100 200
+Mars 6.4185e23 2.27021947e-5 -1.5920996017913 0.4242452800035 0.2375890262932 -0.0035433333583 -0.0111217032591 -0.0050055209561 220 80 50
+Jupiter 1.8986e27 0.000477894502 3.4267387266367 3.3556939168495 1.3549166173071 -0.0055749459078 0.0050547894797 0.0023023589577 140 90 80
+Saturne 5.6846e26 0.000402866696 -8.8208813937223 -3.8711845177836 -1.2190835243249 0.0020155183194 -0.0046651721770 -0.0020137217582 255 255 130
+Uranus 8.6810e25 0.000170851362 20.0202390085409 1.4209078560921 0.3392081526902 -0.0003151495399 0.0034276359196 0.0015056974323 100 255 100
+Netpune 1.0243e26 0.000165537115 26.1122553483927 -13.4307907723313 -6.1472702313096 0.0015199947804 0.0025640877004 0.0010117328082 100 100 255
+Pluton 1.314e22 7.70732894e-6 4.1482234719797 -30.0944906660086 -10.6403298324741 0.0031670165928 0.0001613327787 -0.0009047366041 122 125 102
+</pre>
+
+<h3>Modification du fichier "planets.txt"</h3>
+<p>Par défaut le programme met à disposition la configuration donnée ci-dessus. Si vous souhaitez utiliser une autre configuration, vous êtes libre de modifier le fichier bin/planets.txt comme vous le souhaitez.
+Gardez à l'esprit cependant que rajouter des planètes (ex: des satellites) peut avoir des conséquences sur les performances. Le temps de calcul évolue avec le carré du nombre de planètes.</p>
+
+<p>Vous pouvez trouver les coordonnées héliocentriques rectangulaires du système solaire à la date que vous désirez à l'adresse suivante : <a href="http://www.imcce.fr/fr/ephemerides/formulaire/form_ephepos.php" target="_blank">http://www.imcce.fr/fr/ephemerides/formulaire/form_ephepos.php</a>.
+Elles sont déjà exprimées en UA.<br />
+Il est également possible de remplacer le fichier planets.txt (une sauvegarde du fichier par défaut se trouve dans le dossier bin, sous le nom planets_sauvegarde.txt) par un enregistrement des positions effectué auparavant depuis le programme. Ces enregistrements sont déjà au bon format, il suffit d'en copier un sous le nom "planets.txt" depuis le dossier "positions" dans le dossier "bin".
+Pour savoir comment effectuer un enregistrement, consultez le tableau "<a href="#clavier">Commandes clavier</a>".<br />
+<b>NB :</b> il est recommandé de faire coincider le référentiel absolu utilisé par le programme avec la position initiale de l'astre principal du système. Dans le cas du système solaire, cela revient à utiliser comme coordonnées (0,0,0) pour le soleil à l'instant initial. Par la suite le soleil se déplacera de façon quelconque dans ce référentiel "absolu", mais cela n'aura pas d'incidence sur les résultats affichés.
+</p>
+
+<h3>Chargement d'un fichier particulier</h3>
+<p>Pour lancer le programme en chargeant un fichier planètes particulier, il faut passer le nom du fichier en argument dans la commande (quoi doit être cohérent avec le répertoire de travail). Ex :</p>
+<pre>
+> cd bin
+> phys.exe saturne.txt
+</pre>
+</div>
+</body>
+</html>

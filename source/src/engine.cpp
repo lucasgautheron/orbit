@@ -53,16 +53,16 @@ void Planet::resethist()
 Planet::~Planet()
 {
     resethist();
-    syzygies.deletecontents();
-    syzygies.shrink(0);
+    loopv(i, syzygies) DELETEP(syzygies[i]);
+    syzygies.clear();
 }
 
-svector<Planet *> planets;
+std::vector<Planet *> planets;
 
 bool load_planets(const char *filename)
 {
-    planets.deletecontents();
-    planets.shrink(0);
+    //loopv(i, planets) DELETEP(planets[i]);
+    planets.clear();
     FILE *fp = fopen(filename, "r");
     if(fp == NULL)
     {
@@ -109,20 +109,21 @@ bool load_planets(const char *filename)
             curplanet->refposdate = simul;
             curplanet->ignore_gravity_impact = ignore_gravity ? true : false;
             dbgoutf("ajout planete \"%s\", dist soleil %.3lf UA, vitesse %.3lf km/s", name, curplanet->pos.magnitude()/UA, curplanet->v.magnitude()/1000, ignore_gravity);
-            planets.add(curplanet);
+            planets.push_back(curplanet);
         }
     }
     
-    int count = planets.length();
+    int count = planets.size();
     loopv(i, planets)
     {
         planets[i]->refposcenter = planets[0]->pos;
         loop(j, count)
         {
-            OrbitDatas &orbit = planets[i]->orbits.add();
+            OrbitDatas orbit;
             orbit.aphelion = orbit.perihelion = planets[i]->pos.dist(planets[j]->pos);
             orbit.aph = orbit.per = planets[i]->pos;
             orbit.aph_ref = orbit.per_ref = planets[i]->pos;
+            planets[i]->orbits.push_back(orbit);
         }
     }
     fclose(fp);
@@ -165,7 +166,7 @@ void save_datas()
     time_t t = (time_t)simul.timestamp;
     time = gmtime(&t);
 
-    Planet *pl_ref = !planets.inrange(reference) ? planets[0] : planets[reference];
+    Planet *pl_ref = !invecrange(planets, reference) ? planets[0] : planets[reference];
 
     char filename[64] = "";
     sprintf(filename, "../positions/etat_%02d_%02d_%d_%02d.%02d.%02d.xml", time->tm_mday, time->tm_mon+1, time->tm_year+1900+simul.centuries5*500, time->tm_hour+1, time->tm_min, time->tm_sec);
@@ -191,14 +192,15 @@ void save_datas()
         Planet *pl = planets[i];
         if(pl == pl_ref) continue;
 
-        OrbitDatas &orbit = pl->orbits[planets.find(pl_ref)];
+        OrbitDatas *orbit = NULL;
+        loopv(j, planets) if(pl_ref == planets[j]) { orbit = &pl->orbits[j]; break; }
 
         f->printf("\n        <planet>");
         f->printf("\n            <name>%s</name>", pl->name.c_str());
         f->printf("\n            <mass>%.8e</mass>", pl->mass);
-        f->printf("\n            <period>%d</period>", int(orbit.period));
-        f->printf("\n            <aph>%.12e</aph>", orbit.aphelion);
-        f->printf("\n            <per>%.12e</per>", orbit.perihelion);
+        f->printf("\n            <period>%d</period>", int(orbit->period));
+        f->printf("\n            <aph>%.12e</aph>", orbit->aphelion);
+        f->printf("\n            <per>%.12e</per>", orbit->perihelion);
 
         f->printf("\n            <px>%.12e</px>", pl->pos.x-pl_ref->pos.x);
         f->printf("\n            <py>%.12e</py>", pl->pos.y-pl_ref->pos.y);
@@ -255,14 +257,14 @@ vec gravaccel(Body *a, Body *b)
             a->v = (b->v * b->mass + a->v * a->mass) / (a->mass+b->mass);
             a->mass += b->mass;
             b->mass = 0;
-            planets.remove(planets.find((Planet *)b));
+            planets.erase(std::find(planets.begin(), planets.end(), (Planet *)b));
         }
         else
         {
             b->v = (b->v * b->mass + a->v * a->mass) / (a->mass+b->mass);
             b->mass += a->mass;
             a->mass = 0;
-            planets.remove(planets.find((Planet *)a));
+            planets.erase(std::find(planets.begin(), planets.end(), (Planet *)a));
         }
     }
     vec acc = dist;
@@ -295,7 +297,7 @@ void move_planets(int it)
             planets[i]->v += planets[i]->a * period;
         }
 
-        Planet *pl_ref = !planets.inrange(reference) ? planets[0] : planets[reference];
+        Planet *pl_ref = !invecrange(planets, reference) ? planets[0] : planets[reference];
         vec trace_ref = pl_ref->pos;
 
         vec newrefpos = pl_ref->pos;
@@ -325,7 +327,8 @@ void move_planets(int it)
                     planets[i]->curangle = curv;
                 }
             
-                OrbitDatas &orbit = planets[i]->orbits[planets.find(pl_ref)];
+                OrbitDatas *orbit = NULL;
+                loopv(j, planets) if(pl_ref == planets[j]) { orbit = &planets[i]->orbits[j]; break; }
 
                 // FIXME
                 if(planets[i]->approaching >= 2 * D_PI)
@@ -333,27 +336,27 @@ void move_planets(int it)
                     // finished cycle, starting a new one
                     planets[i]->approaching = 0;
                     planets[i]->histshift = true;
-                    orbit.period = 86400*365.25*500*(simul.centuries5-planets[i]->refposdate.centuries5)+simul.timestamp-planets[i]->refposdate.timestamp;
+                    orbit->period = 86400*365.25*500*(simul.centuries5-planets[i]->refposdate.centuries5)+simul.timestamp-planets[i]->refposdate.timestamp;
                     planets[i]->refposdate = simul;
                     planets[i]->refpos = newpos;
-                    orbit.hasperiod = true;
+                    orbit->hasperiod = true;
                 }
                 
                 double prev_d = (planets[i]->pos-pl_ref->pos).magnitude();
                 double d = (newpos-pl_ref->pos).magnitude();
                 
                 planets[i]->pos = newpos;
-                if(orbit.aphelion < d)
+                if(orbit->aphelion < d)
                 {
-                    orbit.aphelion = d;
-                    orbit.aph = planets[i]->pos-pl_ref->pos;
-                    if(!orbit.hasperiod) orbit.aph_ref = orbit.aph;
+                    orbit->aphelion = d;
+                    orbit->aph = planets[i]->pos-pl_ref->pos;
+                    if(!orbit->hasperiod) orbit->aph_ref = orbit->aph;
                 }
-                else if(orbit.perihelion > d)
+                else if(orbit->perihelion > d)
                 {
-                    orbit.perihelion = d;
-                    orbit.per = planets[i]->pos-pl_ref->pos;
-                    if(!orbit.hasperiod) orbit.per_ref = orbit.per;
+                    orbit->perihelion = d;
+                    orbit->per = planets[i]->pos-pl_ref->pos;
+                    if(!orbit->hasperiod) orbit->per_ref = orbit->per;
                 }
 
                 /*if(prev_d < d)
@@ -390,7 +393,7 @@ void move_planets(int it)
         }
 
         // Syzygy detection.
-        Planet *from = curplanet, *to = !planets.inrange(reference) ? planets[0] : planets[reference], *obstacle;
+        Planet *from = curplanet, *to = !invecrange(planets, reference) ? planets[0] : planets[reference], *obstacle;
         
         bool found_syzygy = false;
         loopv(i, planets)
@@ -431,7 +434,7 @@ void move_planets(int it)
             syz->prec = precision;
             syz->ob_diam = 2*atan(syz->obstacle->radius/syz->obstacle->pos.dist(syz->from->pos));
             syz->to_diam = 2*atan(syz->to->radius/syz->to->pos.dist(syz->from->pos));
-            from->syzygies.add(syz);
+            from->syzygies.push_back(syz);
             from->in_syzygy = false;
         }
     }
@@ -439,7 +442,7 @@ void move_planets(int it)
 
 double calc_angle(Planet *pl)
 {
-    Planet *angleref = !planets.inrange(reference) ? planets[0] : planets[reference];
+    Planet *angleref = !invecrange(planets, reference) ? planets[0] : planets[reference];
     if(pl == angleref) { return pl->angle = 0.0; }
     if(angleref->hist.size() < 7 || pl->hist.size() < 7) return 0;
     
@@ -451,7 +454,7 @@ double calc_angle(Planet *pl)
 
 double calc_area(Planet *pl)
 {
-    Planet *pl_ref = !planets.inrange(reference) ? planets[0] : planets[reference];
+    Planet *pl_ref = !invecrange(planets, reference) ? planets[0] : planets[reference];
     vec cross = (pl->pos-pl_ref->pos) * (pl->v - pl_ref->v);
     return pl->area = cross.magnitude()/2; // area covered in one second.
 }

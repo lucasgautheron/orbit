@@ -9,7 +9,7 @@
 
 
 SDL_Surface *screen = NULL;
-svector<GPFont *> fonts;
+std::vector<GPFont *> fonts;
 bool rendering_history = false;
 
 vec angle(0,0,0);
@@ -34,9 +34,9 @@ void init_sdl()
 
 void load_fonts()
 {
-    fonts.add(new GPFont("consola.ttf", 12));
-    //fonts.add(new GPFont("arial.ttf", 12));
-    //fonts.add(new GPFont("consola.ttf", 12));
+    fonts.push_back(new GPFont("consola.ttf", 12));
+    //fonts.push_back(new GPFont("arial.ttf", 12));
+    //fonts.push_back(new GPFont("consola.ttf", 12));
 }
 
 void auto_ortho(double scale, double z_scale)
@@ -156,7 +156,7 @@ void draw_vector(vec pos, vec dir, double radius)
 
 void draw_accel_vec(Body *b)
 {
-    Planet *pl_ref = planets.inrange(reference) ? planets[reference] : planets[0];
+    Planet *pl_ref = invecrange(planets, reference) ? planets[reference] : planets[0];
     vec ref = pl_ref->pos;
 
     glColor3f(float(b->r)/255.0f, float(b->g)/255.0f, float(b->b)/255.0f);
@@ -171,7 +171,7 @@ void draw_accel_vec(Body *b)
 void render_planets()
 {
     // planets
-    Planet *pl_ref = planets.inrange(reference) ? planets[reference] : planets[0];
+    Planet *pl_ref = invecrange(planets, reference) ? planets[reference] : planets[0];
 
     vec ref = pl_ref->pos;
     
@@ -197,7 +197,7 @@ void render_planets()
     // draw planets
     loopv(i, planets)
     {
-        ref = !planets.inrange(reference) ? planets[0]->pos : planets[reference]->pos;
+        ref = !invecrange(planets, reference) ? planets[0]->pos : planets[reference]->pos;
         glColor3f(float(planets[i]->r)/255.0f, float(planets[i]->g)/255.0f, float(planets[i]->b)/255.0f);
         glVertex3dv((planets[i]->pos-ref).v);
     }
@@ -216,17 +216,18 @@ void render_planets()
     {
         if(planets[i] == pl_ref || !planets[i]->showhist) continue;
 
-        OrbitDatas &orbit = planets[i]->orbits[planets.find(pl_ref)];
+        OrbitDatas *orbit = NULL;
+        loopv(j, planets) if(pl_ref == planets[j]) { orbit = &planets[i]->orbits[j]; break; }
         glColor3f(float(planets[i]->r)/255.0f, float(planets[i]->g)/255.0f, float(planets[i]->b)/255.0f);
         
         glBegin(GL_LINE_STRIP);
-        ref = !planets.inrange(reference) ? planets[0]->pos : planets[reference]->pos;
+        ref = !invecrange(planets, reference) ? planets[0]->pos : planets[reference]->pos;
 
         int s = (pl_ref ? min(pl_ref->hist.size(), planets[i]->hist.size()) : planets[i]->hist.size())-1;
         vec lastpos = planets[i]->pos;
         if(s > 0) looprev(j, s)
         {
-            if(pl_ref == planets[0] && skip_hists && planets[i]->histshift && (s-j) > orbit.period/seconds_per_dot) break;
+            if(pl_ref == planets[0] && skip_hists && planets[i]->histshift && (s-j) > orbit->period/seconds_per_dot) break;
             vec p, r;
             p = *planets[i]->hist.at(j);
             r = *pl_ref->hist.at(j);
@@ -261,7 +262,7 @@ void draw_text(const char *text, double x, double y, double z, int r, int g, int
     glTranslated(x, y, z);
     glColor3ub(r, g, b);
 
-    GPFont *ttf_font = fonts.inrange(font) ? fonts[font] : fonts.last();
+    GPFont *ttf_font = invecrange(fonts, font) ? fonts[font] : fonts.back();
     if(!ttf_font) return;
     ttf_font->Print2D(text);
     glPopMatrix();
@@ -323,7 +324,7 @@ void draw_misc()
     draw_text(tmp, w-10-strlen(tmp)*9, 50, 0);
 
     // referential 
-    Planet *pl_ref = planets.inrange(reference) ? planets[reference] : NULL;
+    Planet *pl_ref = invecrange(planets, reference) ? planets[reference] : NULL;
     sprintf(tmp, "Referentiel: %s", pl_ref ? pl_ref->name.c_str() : "Soleil");
     draw_text(tmp, 10, h-20, 0);
 
@@ -337,8 +338,9 @@ void draw_planet_state(Planet *pl)
 {
     if(!pl) return;
 
-    Planet *pl_ref = planets.inrange(reference) ? planets[reference] : planets[0];
-    OrbitDatas &orbit = pl->orbits[planets.find(pl_ref)];
+    Planet *pl_ref = invecrange(planets, reference) ? planets[reference] : planets[0];
+    OrbitDatas *orbit = NULL;
+    loopv(j, planets) if(pl_ref == planets[j]) { orbit = &pl->orbits[j]; break; }
 
     int y = h-20;
     char tmp[128] = "";
@@ -369,16 +371,16 @@ void draw_planet_state(Planet *pl)
     draw_text(tmp, w-10-strlen(tmp)*9, y, 0);
     y -= 22;
     
-    sprintf(tmp, "Aph: %.5e km%s", orbit.aphelion/1000.0, orbit.hasperiod ? "" : " (?)");
+    sprintf(tmp, "Aph: %.5e km%s", orbit->aphelion/1000.0, orbit->hasperiod ? "" : " (?)");
     draw_text(tmp, w-10-strlen(tmp)*9, y, 0);
     y -= 22;
 
-    sprintf(tmp, "Peri: %.5e km%s", orbit.perihelion/1000.0, orbit.hasperiod ? "" : " (?)");
+    sprintf(tmp, "Peri: %.5e km%s", orbit->perihelion/1000.0, orbit->hasperiod ? "" : " (?)");
     draw_text(tmp, w-10-strlen(tmp)*9, y, 0);
     y -= 22;
 
-    double exc = (orbit.aphelion - orbit.perihelion)/(orbit.aphelion + orbit.perihelion);
-    sprintf(tmp, "Exc: %.4lf%s", exc, orbit.hasperiod ? "" : " (?)");
+    double exc = (orbit->aphelion - orbit->perihelion)/(orbit->aphelion + orbit->perihelion);
+    sprintf(tmp, "Exc: %.4lf%s", exc, orbit->hasperiod ? "" : " (?)");
     draw_text(tmp, w-10-strlen(tmp)*9, y, 0);
     y -= 22;
 
@@ -387,9 +389,9 @@ void draw_planet_state(Planet *pl)
 
     if(!draw_area)
     {
-        years = orbit.period > 365 * 86400 * 1.1 ? int(orbit.period/(365.25*86400)) : 0;
-        days = (orbit.period-365.25*86400*years)/86400.0;
-        sprintf(pattern, orbit.hasperiod ? "Per: %%d an %s j" : "Per: ?", (days>10 ? "%.0lf" : "%.1lf"));
+        years = orbit->period > 365 * 86400 * 1.1 ? int(orbit->period/(365.25*86400)) : 0;
+        days = (orbit->period-365.25*86400*years)/86400.0;
+        sprintf(pattern, orbit->hasperiod ? "Per: %%d an %s j" : "Per: ?", (days>10 ? "%.0lf" : "%.1lf"));
         sprintf(tmp, pattern, years, days);
         draw_text(tmp, w-10-strlen(tmp)*9, y, 0);
         y -= 22;
@@ -403,7 +405,7 @@ void draw_planet_state(Planet *pl)
     else
     {
         vec cinetic_momentum = ((pl->v-pl_ref->v) * (pl->pos-pl_ref->pos)) * pl->mass;
-        double orbit_a = (orbit.aphelion + orbit.perihelion)/2;
+        double orbit_a = (orbit->aphelion + orbit->perihelion)/2;
         double average_r = orbit_a*sqrt(sqrt(1-exc*exc));
         double period = 2*D_PI/(cinetic_momentum.magnitude()/(average_r*average_r*pl->mass));
         double area = calc_area(pl);
@@ -418,7 +420,7 @@ void draw_planet_state(Planet *pl)
 
         years = period > 365 * 86400 * 1.1 ? int(period/(365.25*86400)) : 0;
         days = (period-365.25*86400*years)/86400.0;
-        sprintf(pattern, "Per(th): %%d an %s j%s", (days>10 ? "%.0lf" : "%.1lf"), orbit.hasperiod ? "" : "(?)");
+        sprintf(pattern, "Per(th): %%d an %s j%s", (days>10 ? "%.0lf" : "%.1lf"), orbit->hasperiod ? "" : "(?)");
         sprintf(tmp, pattern, years, days);
         draw_text(tmp, w-10-strlen(tmp)*9, y, 0);
         y -= 22;

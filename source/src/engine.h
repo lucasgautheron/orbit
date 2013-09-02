@@ -41,7 +41,7 @@ class Body
     
      Concurrency::concurrent_vector<vec *> hist;
      //std::vector<vec *> hist;
-     //svector<vec *> hist;
+     //std::vector<vec *> hist;
      //Concurrency::concurrent_vector<vec *> tmp_hist;
 };
 
@@ -57,8 +57,8 @@ class Planet : public Body
         date refposdate;
         double angle, area;
 
-        svector<OrbitDatas> orbits;
-        svector<Syzygy *> syzygies;
+        std::vector<OrbitDatas> orbits;
+        std::vector<Syzygy *> syzygies;
 
     void resethist();
 
@@ -102,7 +102,7 @@ extern double scalefactor;
 extern bool running, print_frame;
 extern char *planets_file;
 extern Planet *curplanet;
-extern svector<Planet *> planets;
+extern std::vector<Planet *> planets;
 extern double precision, speed, seconds_per_dot;
 extern bool skip_hists, draw_accel, draw_area;
 

@@ -43,7 +43,7 @@ void zoom_out() { scalefactor = min(scalefactor*2.5, 1e15); }
 void prev_ref()
 {
     reference--;
-    if(reference < 0) reference = planets.length()-1;
+    if(reference < 0) reference = planets.size()-1;
     
     bool was_running = running;
     running = false;
@@ -56,7 +56,7 @@ void prev_ref()
 void next_ref()
 {
     reference++;
-    if(reference >= planets.length()) reference = 0;
+    if(reference >= planets.size()) reference = 0;
 
     bool was_running = running;
     running = false;
@@ -101,9 +101,14 @@ void harder()
 
 void studied()
 {
-    int n = planets.find(curplanet);
-    if(planets.inrange(++n)) curplanet = planets[n];
-    else curplanet = planets.inrange(0) ? planets[0] : NULL;
+    int n = -1;
+    loopv(i, planets) if(planets[i] == curplanet)
+    {
+        n = i+1;
+        break;
+    }
+    if(invecrange(planets, n)) curplanet = planets[n];
+    else curplanet = invecrange(planets, 0) ? planets[0] : NULL;
 }
 
 void rewind()

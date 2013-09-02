@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <sstream>
 #include <stdarg.h>
 #include <math.h>
@@ -24,8 +25,6 @@
 #include "SDL/SDL_thread.h"
 
 #include "zlib/zlib.h"
-
-using namespace std;
 
 #include "tools.h"
 #include "stream.h"

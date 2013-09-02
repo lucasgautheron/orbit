@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 
     SDL_Event event;
 
-    if(planets.inrange(0)) curplanet = planets[0];
+    if(invecrange(planets, 0)) curplanet = planets[0];
 
     render_millis.maxfps = MAXFPS;
     compute_millis.maxfps = MAXCPS;

@@ -50,7 +50,6 @@ void prev_ref()
     SDL_Delay(5);
 
     loopv(i, planets) planets[i]->resethist();
-    loopv(i, satellites) satellites[i]->resethist();
 
     running = was_running;
 }
@@ -64,7 +63,6 @@ void next_ref()
     SDL_Delay(5);
 
     loopv(i, planets) planets[i]->resethist();
-    loopv(i, satellites) satellites[i]->resethist();
 
     running = was_running;
 }
@@ -78,7 +76,6 @@ void smoother()
         SDL_Delay(5);
 
         loopv(i, planets) planets[i]->resethist();
-        loopv(i, satellites) satellites[i]->resethist();
 
         seconds_per_dot /= 1.2;
 
@@ -95,7 +92,6 @@ void harder()
         SDL_Delay(5);
 
         loopv(i, planets) planets[i]->resethist();
-        loopv(i, satellites) satellites[i]->resethist();
 
         seconds_per_dot *= 1.2;
 
@@ -119,7 +115,6 @@ void rewind()
     SDL_Delay(10);
 
     loopv(i, planets) planets[i]->resethist();
-    loopv(i, satellites) satellites[i]->resethist();
 
     if(planets_file && planets_file[0] != '\0') planets_loaded = load_planets(planets_file);
     if(!planets_loaded)

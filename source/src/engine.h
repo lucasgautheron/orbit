@@ -27,7 +27,7 @@ struct OrbitDatas
     OrbitDatas() : aphelion(0), perihelion(0), period(0), hasperiod(false), approaching(false), prec(0.0) { loop(i, 3) aph.v[i] = per.v[i] = aph_ref.v[i] = per_ref.v[i] = 0; }
 };
 
-enum { BODY_PL = 0, BODY_SAT, BODY_NUM };
+enum { BODY_PL = 0, BODY_NUM };
 
 class Body
 {
@@ -64,28 +64,6 @@ class Planet : public Body
 
     Planet();
     ~Planet();
-};
-
-enum { SAT_ACCEL = 0, SAT_APPROACH, SAT_ORBIT };
-
-class Satellite : public Body
-{
-    public: 
-        vec push;
-        vec goal_p, goal_v; // ideal position and velocity to reach
-        vec axis; // axis the satellite is rotating around.
-        double goal_vel, max_vel; // orbit velocity, max velocity
-        double period, free_flight, stop_time;
-        short int state;
-        
-        double max_push, max_brake; // newtons
-        bool orbiting; // has reached orbiting position ?
-        Planet *pl; // planet the satellite is orbiting around;
-
-    void resethist();
-
-    Satellite();
-    ~Satellite();
 };
 
 struct Syzygy
@@ -125,7 +103,6 @@ extern bool running, print_frame;
 extern char *planets_file;
 extern Planet *curplanet;
 extern svector<Planet *> planets;
-extern svector<Satellite *> satellites;
 extern double precision, speed, seconds_per_dot;
 extern bool skip_hists, draw_accel, draw_area;
 

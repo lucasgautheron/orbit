@@ -57,34 +57,7 @@ Planet::~Planet()
     syzygies.shrink(0);
 }
 
-Satellite::Satellite() : free_flight(0)
-{
-    orbiting = false;
-    type = BODY_SAT;
-    state = SAT_ACCEL;
-    histupdate = 0;
-    mass = radius = 0.0;
-    r = g = b = 0;
-    name = "";
-    pl = NULL;
-    loop(i, 3) pos.v[i] = v.v[i] = a.v[i] = push.v[i] = 0.0;
-}
-
-void Satellite::resethist()
-{   
-    histupdate = 0.0;
-    int s = hist.size();
-    loop(i, s) { DELETEP(hist[i]); }
-    hist.clear();
-}
-
-Satellite::~Satellite()
-{
-    resethist();
-}
-
 svector<Planet *> planets;
-svector<Satellite *> satellites;
 
 bool load_planets(const char *filename)
 {
@@ -320,94 +293,6 @@ void move_planets(int it)
 
             planets[i]->a = acc;
             planets[i]->v += planets[i]->a * period;
-        }
-
-        // apply gravity to all satellites. Satellites' own gravity effects are negliged.
-        // then, "push" satellites to force them to the desired position
-
-        // FIXME
-        loopv(i, satellites)
-        {
-            Satellite *s = satellites[i];
-            s->orbiting = true;
-            vec acc(0, 0, 0);
-            loopv(j, planets)
-            {
-                acc.add(gravaccel((Body *)s, (Body *)planets[j]));
-            }
-
-            vec dp = s->goal_p + s->pl->pos - s->pos; // FIXME : use a static value of s->pl->pos @ SAT_ACCEL
-            vec v(0, 0, 0), a(0, 0, 0);
-
-            switch(s->state)
-            {
-                case SAT_ACCEL:
-                {
-                    // v² - v0² = 2a(x-x0)
-                    // x = (-v0²)/2a
-                    double stop_dist = (s->v.squaredlen())/(2*(s->max_brake/s->mass));
-                    s->stop_time = s->v.magnitude()/(s->max_brake/s->mass);
-                    if(stop_dist >= dp.magnitude())
-                    {
-                        s->state = SAT_APPROACH;
-                        break;
-                    }
-                    v = dp; v.normalize().mul(s->max_vel);
-                    a = v-s->v; a.div(period);
-                    s->push = a-acc;
-                    double force = s->push.magnitude()*s->mass;
-                    force = min(force, s->max_push);
-                    s->push.normalize().mul(force/s->mass);
-                    s->a = s->push + acc;
-                }
-                break;
-
-                case SAT_APPROACH:
-                {
-                    if(s->stop_time <= 0)
-                    {
-                        s->state = SAT_ORBIT;
-                        break;
-                    }
-                    s->stop_time -= period;
-                    v = dp;
-                    a = v-s->v; a.div(period);
-                    s->push = -a-acc;
-                    s->push.normalize().mul(s->max_brake/s->mass);
-                    s->a = s->push + acc;
-                }
-                break;
-
-                case SAT_ORBIT:
-                {
-                    // TODO : wait for planet to arrive to the desired position, using a static ref to pl->pos ?!
-                    v = dp; v.normalize().mul(s->goal_vel);
-                    a = v-s->v; a.div(period);
-                    s->push = a-acc;
-                    double force = s->push.magnitude()*s->mass;
-                    force = min(force, s->max_push);
-                    s->push.normalize().mul(force/s->mass);
-                    s->a = s->push + acc;
-
-                    s->goal_p.rotate(2*D_PI/(s->period)*period, s->axis);
-                }
-                break;
-
-            }
-
-            // apply accel
-            s->v += s->a * period;
-            s->pos += s->v * period;
-
-            // history
-            s->histupdate += precision;
-            if(s->histupdate > seconds_per_dot)
-            {   
-                vec *v = new vec();
-                *v = s->pos;
-                s->histupdate = 0;
-                s->hist.push_back(v);
-            }
         }
 
         Planet *pl_ref = !planets.inrange(reference) ? planets[0] : planets[reference];

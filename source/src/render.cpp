@@ -168,20 +168,6 @@ void draw_accel_vec(Body *b)
     draw_vector(pos, dir, radius);
 }
 
-void draw_push_vec(Satellite *s)
-{
-    Planet *pl_ref = planets.inrange(reference) ? planets[reference] : planets[0];
-    vec ref = pl_ref->pos;
-
-    vec dir = s->push;
-    vec pos = s->pos-ref;
-
-    double radius = scalefactor/20;
-
-    glColor3f(float(s->r)/255.0f, float(s->g)/255.0f, float(s->b)/255.0f);
-    draw_vector(pos, dir, radius);
-}
-
 void render_planets()
 {
     // planets
@@ -215,14 +201,6 @@ void render_planets()
         glColor3f(float(planets[i]->r)/255.0f, float(planets[i]->g)/255.0f, float(planets[i]->b)/255.0f);
         glVertex3dv((planets[i]->pos-ref).v);
     }
-
-    loopv(i, satellites)
-    {
-        ref = !planets.inrange(reference) ? planets[0]->pos : planets[reference]->pos;
-        glColor3f(float(satellites[i]->r)/255.0f, float(satellites[i]->g)/255.0f, float(satellites[i]->b)/255.0f);
-        glVertex3d(satellites[i]->pos.x-ref.x, satellites[i]->pos.y-ref.y, satellites[i]->pos.z-ref.z);
-        glVertex3d(satellites[i]->goal_p.x+satellites[i]->pl->pos.x-ref.x, satellites[i]->goal_p.y+satellites[i]->pl->pos.y-ref.y, satellites[i]->pos.z+satellites[i]->pl->pos.z-ref.z);
-    }
     glEnd();
 
     // draw acceleration vectors
@@ -230,15 +208,9 @@ void render_planets()
     if(draw_accel)
     {
         loopv(i, planets) draw_accel_vec((Body *)planets[i]);
-        loopv(i, satellites)
-        {
-            draw_accel_vec((Body *)satellites[i]);
-            draw_push_vec(satellites[i]);
-        }
     }
 
     // trace history (planets) 
-    // TODO : merge planets' and satellite' history rendering code
     ref = vec(0,0,0);
     loopv(i, planets)
     {
@@ -263,19 +235,6 @@ void render_planets()
         }
         glEnd();
     }
-
-    loopv(i, satellites)
-    {
-        glBegin(GL_LINE_STRIP);
-        ref = !planets.inrange(reference) ? planets[0]->pos : planets[reference]->pos;
-        glVertex3dv((satellites[i]->pos-ref).v);
-        glColor3f(float(satellites[i]->r)/255.0f, float(satellites[i]->g)/255.0f, float(satellites[i]->b)/255.0f);
-        int s = (pl_ref ? min(pl_ref->hist.size(), satellites[i]->hist.size()) : satellites[i]->hist.size())-1;
-        ref = !planets.inrange(reference) ? planets[0]->pos : planets[reference]->pos;
-        if(s > 0) looprev(j, s) glVertex3dv((*satellites[i]->hist.at(j)-*pl_ref->hist.at(j)).v);
-        glEnd();
-    }
-
     // area covered by day
     if(draw_area)
     {

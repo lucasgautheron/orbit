@@ -81,23 +81,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    /*Satellite *test = new Satellite();
-    test->mass = 3500;
-    test->max_push = 1e4;
-    test->max_brake = 5000;
-    test->period = 86400 * 100/16; // secs/rad
-    test->axis = vec(0, 0, 1).normalize();
-    test->goal_p.orthogonal(test->axis).normalize().mul(UA/4);
-    test->pl = planets[6];
-    test->pos = planets[4]->pos;
-    test->v = planets[4]->v;
-    test->pos.x += planets[4]->radius;
-    test->goal_vel = 2*D_PI/test->period*test->goal_p.dist(test->pl->pos); // m/s
-    test->max_vel = 15000;
-    test->r = 0; test->g = 255; test->b = 255;
-    test->type = BODY_SAT;
-    satellites.add(test);*/
-
     compute_thread = SDL_CreateThread(compute_thread_func, NULL);
 
     SDL_Event event;
